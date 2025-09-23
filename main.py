@@ -6,19 +6,54 @@ import tkinter as tk
 import requests
 import json
 
-def main():
+def getInfo(root, city_name):
     api_key = "98265f2c4fbe417589063907251909"
     base_url = "http://api.weatherapi.com/v1"
     api_call = "/current.json?"
 
-    city_name = input("Enter city name: ")
-    complete_url = base_url + api_call + "key=" + api_key + "&q=" + city_name
+    complete_url = base_url + api_call + "key=" + api_key + "&q=" + str(city_name.get())
 
     response = requests.get(complete_url)
     data = response.json()
 
+    #if data["error"]:
+        #print("City not found.")
+        #return None
+    
+    #else:
+    name = data["location"]["name"]
+    country = data["location"]["country"]
+    temperature = data["current"]["temp_f"]
+    weather = data["current"]["condition"]["text"]
+    icon = data["current"]["condition"]["icon"]
 
-    print(data)
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    info = [name, country, temperature, weather, icon]
+
+    displayData(info, root)
+
+def displayData(info, root):
+    if info is None:
+        label = tk.Label(root, text="City not found.")
+        label.pack()
+    else:
+        name, country, temperature, weather, icon = info
+        label = tk.Label(root, text=f"City: {name}, {country}\nTemperature: {temperature}°F\nWeather: {weather}")
+        label.pack()
+        # You can add code to display the icon if needed
+
+def main():
+    # Display the weather information in a GUI window
+    root = tk.Tk()
+    root.title("Weather App")
+    root.geometry("300x200")
+    city_name = tk.StringVar()
+    tk.Entry(root, textvariable=city_name).pack()
+    info = tk.Button(root, text="Get Weather", command=lambda: getInfo(root, city_name)).pack()
+    
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
