@@ -1,4 +1,4 @@
-# WeatherApp
+#WeatherApp
 #Grayson Beamesderfer
 #September 19th 2025
 
@@ -7,7 +7,7 @@ import requests
 import json
 
 def main():
-    api_key = "98265f2c4fbe417589063907251909"
+    api_key = "41b3d66b6d75ef6280679769661f9a1a"
     base_url = "http://api.openweathermap.org/data/2.5/weather?"
 
     city_name = input("Enter city name: ")
