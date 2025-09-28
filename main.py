@@ -2,7 +2,10 @@
 #Grayson Beamesderfer
 #September 19th 2025
 
+from logging import root
+from tkinter import *
 import tkinter as tk
+from tkinter import ttk
 import requests
 import json
 
@@ -16,7 +19,7 @@ def getInfo(root, city_name):
     response = requests.get(complete_url)
     data = response.json()
 
-    #if data["error"]:
+    #if data["error"]:                      error handling later, testing will always work
         #print("City not found.")
         #return None
     
@@ -36,23 +39,32 @@ def getInfo(root, city_name):
 
 def displayData(info, root):
     if info is None:
-        label = tk.Label(root, text="City not found.")
+        label = Label(root, text="City not found.")
         label.pack()
     else:
         name, country, temperature, weather, icon = info
-        label = tk.Label(root, text=f"City: {name}, {country}\nTemperature: {temperature}°F\nWeather: {weather}")
+        label = Label(root, text=f"City: {name}, {country}\nTemperature: {temperature}°F\nWeather: {weather}")
         label.pack()
         # You can add code to display the icon if needed
 
 def main():
     # Display the weather information in a GUI window
     root = tk.Tk()
+
     root.title("Weather App")
     root.geometry("300x200")
+
+    frame = Frame(root, bg="white", highlightbackground="black", highlightthickness=2)
+    frame.place(relwidth=1, relheight=1, relx=0.5, rely=0.5, anchor=CENTER)
+
     city_name = tk.StringVar()
-    tk.Entry(root, textvariable=city_name).pack()
-    info = tk.Button(root, text="Get Weather", command=lambda: getInfo(root, city_name)).pack()
-    
+
+    entry = ttk.Entry(frame, textvariable=city_name)
+    entry.grid(row=0, column=0)
+
+    button = ttk.Button(frame, text="Get Weather", command=lambda: getInfo(root, city_name))
+    button.grid(row=3, column=2)
+
     root.mainloop()
 
 if __name__ == "__main__":
