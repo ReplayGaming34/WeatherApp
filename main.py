@@ -5,9 +5,11 @@
 from logging import root
 from tkinter import *
 import tkinter as tk
-from tkinter import ttk
+import os
 import requests
 import customtkinter as ctk
+import urllib.request
+from PIL import Image
 import time
 
 class WeatherApp(ctk.CTk):
@@ -18,15 +20,62 @@ class WeatherApp(ctk.CTk):
     global api_call
     api_call = "/current.json?"
 
+    def onClose(self):
+        self.clean()
+        self.root.destroy()
+
+    def clean(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+        if os.path.exists("Icon\\gfg.png"):
+            os.remove("Icon\\gfg.png")
+
     def displayData(self, info):
-        if info is None:
-            label = ctk.CTkLabel(self, text="City not found.")
-            label.pack()
+        name, country, temperature, weather, icon = info
+
+        urllib.request.urlretrieve(f"http:{icon}", "Icon\\gfg.png")
+
+        if temperature <= 32:
+            color = "2174c2"  # Cold color
+        elif 32 < temperature <= 70:
+            color = "67c221"  # Mild color
+        elif 70 < temperature <= 90:
+            color = "c2ad21"  # Warm color
         else:
-            name, country, temperature, weather, icon = info
-            label = ctk.CTkLabel(self, text=f"City: {name}, {country}\n"
-                                 f"Temperature: {temperature}°F\nWeather: {weather}").place(relx=0.5, rely=0.4, anchor=CENTER)
-            # You can add code to display the icon if needed
+            color = "ba1e1e"  # Hot color
+
+        displayFrame = ctk.CTkFrame(self, height=100, width=100)
+        displayFrame.pack(fill="both", padx=20, pady=10, expand=True)
+
+        image = Image.open("Icon\\gfg.png")
+
+        img = ctk.CTkImage(image, size=(100, 100))
+
+        lab = ctk.CTkLabel(displayFrame, image=img, text="")
+        lab.place(relx=0.8, rely=0.45, anchor=CENTER)
+        lab.image = img #reference for garbage collection
+
+        cityLabel = ctk.CTkLabel(displayFrame, text=f"{name}", font=ctk.CTkFont(size=20, weight="bold"),
+                                text_color="white").place(relx=0.5, rely=0.1, anchor=CENTER)
+        
+        label = ctk.CTkLabel(displayFrame, text_color="white",font=ctk.CTkFont(size=15, weight="bold"), 
+                             text=f"Country: {country}").place(relx=0.5, rely=0.2, anchor=CENTER)
+        
+        tempLabel = ctk.CTkLabel(displayFrame, text = "Temperature: ", font=ctk.CTkFont(size=15, weight="bold"), 
+                                 text_color="white").place(relx=0.4, rely=0.4, anchor=E)
+        
+        temp = ctk.CTkLabel(displayFrame, text=f"{temperature}°F", font=ctk.CTkFont(size=15, weight="bold"),
+                            text_color=f"#{color}").place(relx=0.5, rely=0.4, anchor=CENTER)
+        
+        conditionLabel = ctk.CTkLabel(displayFrame, text="Condition: ", font=ctk.CTkFont(size=15, weight="bold"),
+                                    text_color="white").place(relx=0.315, rely=0.6, anchor=E)
+        
+        condition = ctk.CTkLabel(displayFrame, text=f"{weather}", 
+                                 font=ctk.CTkFont(size=15, weight="bold")).place(relx=0.5, rely=0.6, anchor=CENTER)
+        
+        button = ctk.CTkButton(displayFrame, text="Check Another City", corner_radius=32, hover_color="#2495ff",
+                               command=lambda: self.constructHome())
+        button.place(relx=0.5, rely=0.8, anchor=CENTER)
 
     def displayLoadingBar(self, info):
         label = ctk.CTkLabel(self, text="Loading...", font=ctk.CTkFont(size=20, weight="bold"))
@@ -34,7 +83,7 @@ class WeatherApp(ctk.CTk):
 
         progress = ctk.CTkProgressBar(self, mode = "indeterminate", indeterminate_speed=0.1, width=200, fg_color="#c22121")
 
-        self.after(2000, lambda: [progress.configure(indeterminate_speed=0.4, fg_color="#c2ad21")])
+        self.after(2000, lambda: [progress.configure(indeterminate_speed=0.3, fg_color="#c2ad21")])
         self.after(5000, lambda: [progress.configure(indeterminate_speed=0.7, fg_color="#67c221"), label.configure(text="Almost there...")])
         
         progress.place(relx=0.5, rely=0.5, anchor=CENTER)
@@ -67,14 +116,9 @@ class WeatherApp(ctk.CTk):
     def on_press(self, city_name):
         self.get_info(city_name)
 
-    def __init__(self):
-        ctk.CTk.__init__(self)
-
-        self.title("Weather App")
-        self.geometry("300x250")
-        self.resizable(False, False)
-
-        self.root = self
+    def constructHome(self):
+        self.clean()
+        time.sleep(0.7) #to allow time for cleaning
 
         self.frame = ctk.CTkFrame(master=self.root, height=100, width=100, fg_color="#2174c2")
         self.frame.pack(fill="both", padx=20, pady=10)
@@ -92,7 +136,20 @@ class WeatherApp(ctk.CTk):
 
         self.button = ctk.CTkButton(self.root, text="Get Weather", corner_radius=32, hover_color="#2495ff",
                                command=lambda: self.on_press(self.city_name.get()))
+        
         self.button.place(relx=0.5, rely=0.7, anchor=CENTER)
+
+    def __init__(self):
+        ctk.CTk.__init__(self)
+        self.protocol("WM_DELETE_WINDOW", self.onClose)
+
+        self.title("Weather App")
+        self.geometry("300x250")
+        self.resizable(False, False)
+
+        self.root = self
+
+        self.constructHome()
 
 
 if __name__ == "__main__":
