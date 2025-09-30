@@ -118,7 +118,6 @@ class WeatherApp(ctk.CTk):
 
     def constructHome(self):
         self.clean()
-        time.sleep(0.7) #to allow time for cleaning
 
         self.frame = ctk.CTkFrame(master=self.root, height=100, width=100, fg_color="#2174c2")
         self.frame.pack(fill="both", padx=20, pady=10)
@@ -153,5 +152,12 @@ class WeatherApp(ctk.CTk):
 
 
 if __name__ == "__main__":
+    libs = ["requests", "PIL", "customtkinter"]
+    for lib in libs:
+        try:
+            __import__(lib)
+        except ImportError:
+            os.system(f"pip install {lib}")
+
     app = WeatherApp()
     app.mainloop()
