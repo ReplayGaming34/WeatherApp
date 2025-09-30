@@ -27,13 +27,13 @@ class WeatherApp(ctk.CTk):
     def clean(self):
         for widget in self.winfo_children():
             widget.destroy()
-        if os.path.exists("Icon\\gfg.png"):
-            os.remove("Icon\\gfg.png")
+        if os.path.exists("gfg.png"):
+            os.remove("gfg.png")
 
     def displayData(self, info):
         name, country, temperature, weather, icon = info
 
-        urllib.request.urlretrieve(f"http:{icon}", "Icon\\gfg.png")
+        urllib.request.urlretrieve(f"http:{icon}", "gfg.png")
 
         if temperature <= 32:
             color = "2174c2"  # Cold color
@@ -47,7 +47,7 @@ class WeatherApp(ctk.CTk):
         displayFrame = ctk.CTkFrame(self, height=100, width=100)
         displayFrame.pack(fill="both", padx=20, pady=10, expand=True)
 
-        image = Image.open("Icon\\gfg.png")
+        image = Image.open("gfg.png")
 
         img = ctk.CTkImage(image, size=(100, 100))
 
